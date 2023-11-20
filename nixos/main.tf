@@ -70,6 +70,19 @@ variable "flake" {
   }
 }
 
+variable "trigger" {
+  type = string
+
+  default = ""
+
+  description = <<-END
+    A string used a a trigger condition for a redeploy.
+
+    This can be useful for triggering a redeploy if an underlying vm
+    is rebuilt, for example.
+    END
+}
+
 locals {
   components = split("#", var.flake)
 
@@ -87,6 +100,8 @@ data "external" "instantiate" {
 resource "null_resource" "deploy" {
   triggers = {
     derivation = data.external.instantiate.result["path"]
+
+    trigger = var.trigger
   }
 
   provisioner "local-exec" {
